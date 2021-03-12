@@ -7,16 +7,16 @@ Simple WYSIWYG text editor made in javascript.
 </p>
 ```javascript
 window.onload = function(){
-        		let element = document.getElementsByClassName("wEditor");
-        		let editors = [];
-        		for(let i = 0; i < element.length; i++){
-        			editors[i] = new WYSIWYG(element[i]);
-        		}
-        	}
+	let element = document.getElementsByClassName("wEditor");
+	let editors = [];
+	for(let i = 0; i < element.length; i++){
+		editors[i] = new WYSIWYG(element[i]);
+	}
+}
 ```
 
 ```html
 <body>
-		<div class="wEditor"></div>
-	</body>
+	<div class="wEditor"></div>
+</body>
 ```
