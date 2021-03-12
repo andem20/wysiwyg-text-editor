@@ -5,7 +5,7 @@ Simple WYSIWYG text editor made in javascript.
 <p>
   Implementation:
 </p>
-```javascript
+```Javascript
 window.onload = function(){
 	let element = document.getElementsByClassName("wEditor");
 	let editors = [];
