@@ -10,6 +10,8 @@ body {
 	height: 300px;
 	width: 500px;
 	border: 1px solid #DDD;
+	resize: both;
+	overflow: auto;
 }
 
 .wMenu {
@@ -23,11 +25,10 @@ body {
 .wContent {
 	position: relative;
 	width: 100%;
-	height: calc(100% - 30px);
+	height: calc(100% - 33px);
 	background-color: #FFF;
 	overflow-y: auto;
 	font-family: Arial;
-	text-align: justify;
 	line-height: 1.5;
 }
 
