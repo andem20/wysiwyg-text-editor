@@ -33,13 +33,13 @@ class WYSIWYG {
 		this.buttons["bold"].innerHTML = "<b>B</b>";
 		this.buttons["italic"].innerHTML = "<i>I</i>";
 		this.buttons["underline"].innerHTML = "<u>U</u>";
+		// TODO do it with css instead
 		this.buttons["createLink"].innerHTML = "<img src='public/icons/link.png' height='10px' />";
 		this.buttons["justifyLeft"].innerHTML = "<img src='public/icons/left-align.png' height='15px' />";
 		this.buttons["justifyCenter"].innerHTML = "<img src='public/icons/center-align.png' height='15px' />";
 		this.buttons["justifyRight"].innerHTML = "<img src='public/icons/right-align.png' height='15px' />";
 		this.buttons["justifyFull"].innerHTML = "<img src='public/icons/justify-align.png' height='15px' />";
 	}
-
 
 	addStyle(style, value) {
     	document.execCommand(style, false, value);

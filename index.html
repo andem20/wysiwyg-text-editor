@@ -3,20 +3,24 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>WYSIWYG</title>
-		<script src="public/js/wysiwyg.1.1.js"></script>
+		<script src="public/js/wysiwyg.1.2.js"></script>
+		<script src="public/js/modules/wysiwyg.default.module.js"></script>
         <link rel="stylesheet" type="text/css" href="public/css/wysiwyg.css" />
         <script type="text/javascript">
         	window.onload = function(){
         		let element = document.getElementsByClassName("wEditor");
         		let editors = [];
         		for(let i = 0; i < element.length; i++){
-        			editors[i] = new WYSIWYG(element[i]);
+        			editors[i] = new WYSIWYG({
+						container : element[i],
+						package : "default" // "default", "extended", "custom"
+					});
         		}
         	}
         </script>
 	</head>
 
 	<body>
-		<div class="wEditor"></div>
+		<div class="wEditor">Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam ea qui unde ipsa perspiciatis earum nobis provident ipsum nisi accusantium? Aspernatur incidunt cumque commodi tempore ullam possimus quam deserunt quia.</div>
 	</body>
 </html>
