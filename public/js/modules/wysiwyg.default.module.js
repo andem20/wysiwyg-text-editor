@@ -4,15 +4,15 @@ function isActive(button) {
     return button.classList.contains("WYSIWYG-active-button");
 }
 
-function removeDuplicateStyles(style, element) {
-    if(element.childNodes > 0) return 0;
+function removeDuplicateChildren(addedStyle, removedStyle, element) {
+    if(element.childNodes > 0) return;
     element.forEach(e => {
-        if(e.classList !== undefined && e.classList.contains("WYSIWYG-style-" + style)) {
+        if(e.classList !== undefined && (e.classList.contains("WYSIWYG-" + addedStyle) || e.classList.contains("WYSIWYG-" + removedStyle))) {
             let text = document.createTextNode(e.innerText);
             e.parentNode.insertBefore(text, e)
             e.parentNode.removeChild(e);
         }
-        removeDuplicateStyles(style, e.childNodes);
+        removeDuplicateChildren(addedStyle, removedStyle, e.childNodes);
     });
 }
 
@@ -23,9 +23,9 @@ WYSIWYG.prototype.bold = function() {
 
     button.addEventListener("click", () => {
         if(isActive(button)) {
-            this.addTags("weight-normal");
+            this.addTags("weight-normal", "weight-bold");
         } else {
-            this.addTags("weight-bold"); 
+            this.addTags("weight-bold", "weight-normal"); 
         } 
     });
 
@@ -37,9 +37,9 @@ WYSIWYG.prototype.italic = function() {
 
     button.addEventListener("click", () => {
         if(isActive(button)) {
-            this.addTags("style-normal");
+            this.addTags("style-normal", "style-italic");
         } else {
-            this.addTags("style-italic"); 
+            this.addTags("style-italic", "style-normal"); 
         } 
     });
 
@@ -47,24 +47,44 @@ WYSIWYG.prototype.italic = function() {
 };
 
 // Add tags
-WYSIWYG.prototype.addTags = function(style) {
+WYSIWYG.prototype.addTags = function(addedStyle, removedStyle) {
     let selection = this.getHighlight().getRangeAt(0);
     
     let element = document.createElement("span");
     let contents = selection.extractContents();
-
-    removeDuplicateStyles(style, contents.childNodes);
+    
+    removeDuplicateChildren(addedStyle, removedStyle, contents.childNodes);
 
     element.appendChild(contents);
-    // Taverse childnodes and unwrap dublicated styles
-    element.classList.add("WYSIWYG-" + style);
+    
+    element.classList.add("WYSIWYG-" + addedStyle);
     selection.insertNode(element);
 
-    if(selection.toString().length === 0) {
-        element.innerHTML = "&zwnj;";
+    if(selection.toString().length === 0) element.innerHTML = "&zwnj;";
+
+    let parentContent = "";
+    let parent = element.parentNode;
+
+    // TODO fix for different styles
+    while(parent !== this.content) {
+        console.log(parent);
+        // Get children of parent and add their text
+        parent.childNodes.forEach(e => {
+            if(e.nodeType === 3) parentContent += e.textContent;
+        });
+
+        // Remove parent if it has no text
+        if(parentContent == "" && (parent.classList.contains("WYSIWYG-" + addedStyle) || parent.classList.contains("WYSIWYG-" + removedStyle))) {
+            parent.parentNode.insertBefore(element, parent);
+            parent.remove();
+        }
+
+        parent = parent.parentNode;
     }
 
     selection.setStartAfter(element);
+
+    this.content.normalize();
     this.content.focus();
 }
 
