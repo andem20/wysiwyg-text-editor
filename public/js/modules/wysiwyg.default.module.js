@@ -1,11 +1,10 @@
 // Helper functions
-
 function isActive(button) {
     return button.classList.contains("WYSIWYG-active-button");
 }
 
 function removeDuplicateChildren(addedStyle, removedStyle, element) {
-    if(element.childNodes > 0) return;
+    if(element.childNodes < 1) return;
     element.forEach(e => {
         if(e.classList !== undefined && (e.classList.contains("WYSIWYG-" + addedStyle) || e.classList.contains("WYSIWYG-" + removedStyle))) {
             let text = document.createTextNode(e.innerText);
@@ -14,6 +13,38 @@ function removeDuplicateChildren(addedStyle, removedStyle, element) {
         }
         removeDuplicateChildren(addedStyle, removedStyle, e.childNodes);
     });
+}
+
+function cleanupParents(addedStyle, removedStyle, wrapper) {
+    let parentContent = "";
+    let parent = wrapper.parentNode;
+
+    while(parent !== this.content) {
+        // Get children of parent and add their text
+        parent.childNodes.forEach(e => {
+            if(e.nodeType === Node.TEXT_NODE) parentContent += e.textContent;
+        });
+
+        let grandParent = parent.parentNode;
+
+        // Remove parent if it has no text
+        if(parentContent == "") {
+            let hasAddedStyle = parent.classList.contains("WYSIWYG-" + addedStyle);
+            let hasRemovedStyle = parent.classList.contains("WYSIWYG-" + removedStyle);
+            if(hasAddedStyle || hasRemovedStyle) {  
+                console.dir(parent);          
+                parent.parentNode.insertBefore(wrapper, parent); 
+                parent.remove();
+
+                grandParent = wrapper.parentNode;
+            } else {
+                wrapper = parent;
+            }
+        }
+
+        // Get next parent
+        parent = grandParent;
+    }
 }
 
 
@@ -48,41 +79,31 @@ WYSIWYG.prototype.italic = function() {
 
 // Add tags
 WYSIWYG.prototype.addTags = function(addedStyle, removedStyle) {
+    // Get selected text
     let selection = this.getHighlight().getRangeAt(0);
     
-    let element = document.createElement("span");
+    // Create wrapper for apllied style
+    let wrapper = document.createElement("span");
+    // Collect content of selection
     let contents = selection.extractContents();
+
+    // Append content to wrapper
+    wrapper.appendChild(contents);
     
-    removeDuplicateChildren(addedStyle, removedStyle, contents.childNodes);
+    // Add style to wrapper
+    wrapper.classList.add("WYSIWYG-" + addedStyle);
+    // Insert into selected position
+    selection.insertNode(wrapper);
 
-    element.appendChild(contents);
-    
-    element.classList.add("WYSIWYG-" + addedStyle);
-    selection.insertNode(element);
+    // If selection is empty, add invisible char
+    if(selection.toString().length === 0) wrapper.innerHTML = "&zwnj;";
 
-    if(selection.toString().length === 0) element.innerHTML = "&zwnj;";
+    // Cleanup
+    cleanupParents(addedStyle, removedStyle, wrapper);
+    removeDuplicateChildren(addedStyle, removedStyle, wrapper.childNodes);
 
-    let parentContent = "";
-    let parent = element.parentNode;
-
-    // TODO fix for different styles
-    while(parent !== this.content) {
-        console.log(parent);
-        // Get children of parent and add their text
-        parent.childNodes.forEach(e => {
-            if(e.nodeType === 3) parentContent += e.textContent;
-        });
-
-        // Remove parent if it has no text
-        if(parentContent == "" && (parent.classList.contains("WYSIWYG-" + addedStyle) || parent.classList.contains("WYSIWYG-" + removedStyle))) {
-            parent.parentNode.insertBefore(element, parent);
-            parent.remove();
-        }
-
-        parent = parent.parentNode;
-    }
-
-    selection.setStartAfter(element);
+    // Set cursor 
+    selection.setStartAfter(wrapper);
 
     this.content.normalize();
     this.content.focus();
